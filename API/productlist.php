@@ -6,26 +6,26 @@ class radelproductreview {
     const database = 'productreview';
     const username = '';
     const password = '';
+    const product_list='product_list';
 
-    private function db() {
+    private function db($query) {
         $conn = new mysqli(self::host, self::username, self::password, self::database);
-        return $conn;
+        return $conn->query($query) or die();
     }
 
     public static function add_product($params) {
-        $db = self::db();
         $pid = params['pid'];
         $product_name = params['product_name'];
         $product_description = params['product_description'];
         $table=  self::product_list;
         $query = "INSERT INTO `product_list` (`pid`,`product_name`,`product_description`) VALUES ('$pid','$product_name','$product_description')";
-        $result = $db->query($query) or die();
+        $result = self::db($query);
         return 'Success';
     }
-    public static function get_product_list($param){
+    public static function get_product($param){
         $table=  self::product_list;
-        $query = "SELECT * FROM `$table` WHERE $param LIMIT 10";
-        $result = $db->query($query) or die();
+        $query = "SELECT * FROM `$table` WHERE `pid`='$param'";
+        $result = self::db($query);
         $count = $result->num_rows;
         if ($count > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -36,7 +36,7 @@ class radelproductreview {
         }
         $data['count'] = $count;
         $data['data'] = $temp;
-        return $data;
+        return json_encode($data);
        
     }
     
@@ -63,7 +63,7 @@ class radelproductreview {
         return 'Success';
     }
     
-    public static function get_review($param){
+    public static function get_reviews($param){
         $table=  self::review_list;
         $query = "SELECT * FROM `$table` WHERE $param ORDER BY id DESC LIMIT 10";
         $result = $db->query($query) or die();
